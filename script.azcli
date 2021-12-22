@@ -1,0 +1,17 @@
+docker-compose up --scale worker=20 -d
+
+
+# Kube here
+ACR_NAME="azranger"
+RES_GROUP="aci"
+az acr build --registry $ACR_NAME --image locust-aks:v1.2 .
+
+kubectl create namespace locust
+kubectl apply -f .\locust-deployment.yaml -n locust
+kubectl scale deployments/locust-worker --replicas=50 -n locust
+kubectl get service -n locust
+kubectl get pods -n locust -w
+kubectl delete deploy locust-master  -n locust
+kubectl delete deploy locust-worker  -n locust
+kubectl get service -n locust
+kubectl get service -n locust -w
